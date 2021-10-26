@@ -59,10 +59,27 @@ function* _keyCharRepeater(key) {
     i++;
   }
 }
-function xorVigenere(text, key) {}
-
-const gen = _keyCharRepeater("key");
-
-while (true) {
-  console.log(gen.next().value);
+function generateLongKey(text, key) {
+  let res = "";
+  const gen = _keyCharRepeater(key);
+  let l = text.length;
+  while (l) {
+    res += gen.next().value;
+    l--;
+  }
+  return res;
 }
+function xorVigenere(text, key) {
+  const longKey = generateLongKey(text, key);
+  let res = "";
+  let i = 0;
+  while (i < text.length) {
+    res += String.fromCharCode(
+      text[i].charCodeAt(0) ^ longKey[i].charCodeAt(0)
+    );
+    i++;
+  }
+  return res;
+}
+
+console.log(xorVigenere("12345678", "key"));
