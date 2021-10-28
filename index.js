@@ -1,6 +1,7 @@
-// const alphabet = Array.from(Array(26)).map((_, i) =>
-//   String.fromCharCode(i + 65)
-// );
+const plot = require("nodeplotlib");
+const ALPHABET = Array.from(Array(26)).map((_, i) =>
+  String.fromCharCode(i + 65)
+);
 
 function simpleCaesar(text, offset, maxOffset = 26) {
   return text
@@ -82,4 +83,130 @@ function xorVigenere(text, key) {
   return res;
 }
 
-console.log(xorVigenere("12345678", "key"));
+// console.log(xorVigenere("12345678", "key"));
+
+function getIndexOfCoincedence(text) {
+  const splittedText = text.split("");
+  const textChars = Array.from(new Set(splittedText));
+  const allLis = textChars.map((el, i) => {
+    const li = splittedText.filter((char) => char == el).length;
+    return li;
+  });
+
+  return (
+    allLis
+      .map((el) => Math.pow(el, 2))
+      .reduce((a, b) => {
+        return a + b;
+      }) / Math.pow(text.length, 2)
+  );
+}
+
+function getAllIndexes(text) {
+  const textArr = text.split("");
+  let delta = 1;
+  let results = new Map();
+  while (delta < textArr.length) {
+    let arr = [];
+    for (i = 0; i < textArr.length; i = i + delta) {
+      arr.push(textArr[i]);
+    }
+    results.set(delta, getIndexOfCoincedence(arr.join("")));
+    delta++;
+  }
+  return results;
+}
+const task2Text =
+  "G0IFOFVMLRAPI1QJbEQDbFEYOFEPJxAfI10JbEMFIUAAKRAfOVIfOFkYOUQFI15ML1kcJFUeYhA4IxAeKVQZL1VMOFgJbFMDIUAAKUgFOElMI1ZMOFgFPxADIlVMO1VMO1kAIBAZP1VMI14ANRAZPEAJPlMNP1VMIFUYOFUePxxMP19MOFgJbFsJNUMcLVMJbFkfbF8CIElMfgZNbGQDbFcJOBAYJFkfbF8CKRAeJVcEOBANOUQDIVEYJVMNIFwVbEkDORAbJVwAbEAeI1INLlwVbF4JKVRMOF9MOUMJbEMDIVVMP18eOBADKhALKV4JOFkPbFEAK18eJUQEIRBEO1gFL1hMO18eJ1UIbEQEKRAOKUMYbFwNP0RMNVUNPhlAbEMFIUUALUQJKBANIl4JLVwFIldMI0JMK0INKFkJIkRMKFUfL1UCOB5MH1UeJV8ZP1wVYBAbPlkYKRAFOBAeJVcEOBACI0dAbEkDORAbJVwAbF4JKVRMJURMOF9MKFUPJUAEKUJMOFgJbF4JNERMI14JbFEfbEcJIFxCbHIJLUJMJV5MIVkCKBxMOFgJPlVLPxACIxAfPFEPKUNCbDoEOEQcPwpDY1QDL0NCK18DK1wJYlMDIR8II1MZIVUCOB8IYwEkFQcoIB1ZJUQ1CAMvE1cHOVUuOkYuCkA4eHMJL3c8JWJffHIfDWIAGEA9Y1UIJURTOUMccUMELUIFIlc=";
+
+const decodedFromBase = Buffer.from(task2Text, "base64").toString();
+
+// console.log(decodedFromBase);
+const testPoem =
+  "ScroogewasbetterthanhiswordHediditallandinfinitelymoreandtoTinyTimwhodidnotdiehewasasecondfatherHebecameasgoodafriendasgoodamasterandasgoodamanasthegoodoldcitykneworanyothergoodoldcitytownorboroughinthegoodoldworldSomepeoplelaughedtoseethealterationinhimbutheletthemlaughandlittleheededthemforhewaswiseenoughtoknowthatnothingeverhappenedonthisglobeforgoodatwhichsomepeopledidnothavetheirfilloflaughterintheoutsetandknowingthatsuchasthesewouldbeblindanywayhethoughtitquiteaswellthattheyshouldwrinkleuptheireyesingrinsashavethemaladyinlessattractiveformsHisownheartlaughedandthatwasquiteenoughforhimHehadnofurtherintercoursewithSpiritsbutlivedupontheTotalAbstinencePrincipleeverafterwardsanditwasalwayssaidofhimthatheknewhowtokeepChristmaswellifanymanalivepossessedtheknowledgeMaythatbetrulysaidofusandallofusAndsoasTinyTimobservedGodblessUsEveryOne";
+const allIndexes = getAllIndexes(decodedFromBase);
+
+// plot.plot([
+//   {
+//     x: Array.from(allIndexes.keys()),
+//     y: Array.from(allIndexes.values()),
+//     type: "line",
+//   },
+// ]);
+
+// key length is 3
+
+function divideToColumns(text, keyLength) {
+  const chunks = [];
+  let i = 0;
+  while (i < text.length) {
+    chunks.push(text.slice(i, i + keyLength));
+    i += keyLength;
+  }
+  const columns = [];
+  for (let i = 0; i < keyLength; i++) {
+    columns.push(
+      chunks.reduce((a, b) => {
+        return a.concat(b[i]);
+      }, "")
+    );
+  }
+  return columns;
+}
+
+function frequencyAnalyser(text) {
+  const splittedText = text.split("");
+  const textChars = Array.from(new Set(splittedText));
+  const result = new Map();
+  textChars.map((el) => {
+    result.set(
+      el,
+      splittedText.filter((char) => char == el).length / text.length
+    );
+  });
+  return Array.from(result).sort((a, b) => b[1] - a[1]);
+}
+// console.log([decodedFromBase]);
+const data = divideToColumns(decodedFromBase, 3);
+
+// console.dir(
+//   Array.from(data[0]).map((el) => el.charCodeAt(0).toString(16)),
+//   { maxArrayLength: null }
+// );
+const allLines = runThroughtXorCeasar(data[2]);
+
+//debug
+// allLines.forEach((line) => {
+//   console.log([line]);
+// });
+const lineIndex = allLines.findIndex((line) => {
+  return line.startsWith("i ");
+});
+// 76
+// 48
+// 108
+// console.log(lineIndex);
+const line = allLines.find((line) => {
+  return line.startsWith("Wtao");
+});
+// allLines.forEach((line) => console.log([line]));
+
+// const frequencies = [];
+// for (const iterator of data) {
+//   frequencies.push(frequencyAnalyser(iterator));
+// }
+// console.log(frequencies);
+// data.map((e) => console.log(e));
+// console.log(xorVigenere(decodedFromBase, "ABC"));
+
+// 76, 48, 108
+const xoredLines = data.map((col) => runThroughtXorCeasar(col));
+const lines = [xoredLines[0][76], xoredLines[1][48], xoredLines[2][108]];
+
+let resultForThree = "";
+for (let l = 0; l < lines[0].length; l++) {
+  resultForThree += lines[0][l];
+  resultForThree += lines[1][l];
+  resultForThree += lines[2][l];
+}
+console.log(resultForThree);

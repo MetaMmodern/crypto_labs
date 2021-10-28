@@ -20,6 +20,8 @@
   },
   "homepage": "https://github.com/MetaMmodern/crypto_labs#readme",
   "dependencies": {
-    "nodemon": "^2.0.14"
+    "asciichart": "^1.5.25",
+    "nodemon": "^2.0.14",
+    "nodeplotlib": "^0.7.6"
   }
 }
