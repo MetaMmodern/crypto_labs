@@ -31,9 +31,17 @@ export class GeneticAlgorithm<T> {
     while (i < this.iterations) {
       let newKey = this.mutagen(key);
       let newFitness = this.fitness(newKey);
+      let tries = 0;
       while (newFitness >= keyFitness) {
-        newKey = this.mutagen(key);
-        newFitness = this.fitness(newKey);
+        if (tries >= 5000) {
+          console.log("double");
+          newKey = this.mutagen(this.mutagen(key));
+          newFitness = this.fitness(newKey);
+        } else {
+          newKey = this.mutagen(key);
+          newFitness = this.fitness(newKey);
+        }
+        tries++;
       }
 
       key = newKey;
