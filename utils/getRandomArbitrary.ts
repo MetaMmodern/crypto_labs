@@ -1,3 +1,3 @@
 export function getRandomArbitrary(min: number, max: number): number {
-  return Math.ceil(Math.random() * (max - min) + min);
+  return Math.floor(Math.random() * (max - min) + min);
 }

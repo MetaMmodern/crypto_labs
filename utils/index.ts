@@ -1,6 +1,7 @@
 import { randomChar } from "./generators";
 import { getRandomArbitrary } from "./getRandomArbitrary";
 import bigrams from "./bigrams.json";
+import trigrams from "./trigrams.json";
 
 export const textToDecipher =
   "EFFPQLEKVTVPCPYFLMVHQLUEWCNVWFYGHYTCETHQEKLPVMSAKSPVPAPVYWMVHQLUSPQLYWLASLFVWPQLMVHQLUPLRPSQLULQESPBLWPCSVRVWFLHLWFLWPUEWFYOTCMQYSLWOYWYETHQEKLPVMSAKSPVPAPVYWHEPPLUWSGYULEMQTLPPLUGUYOLWDTVSQETHQEKLPVPVSMTLEUPQEPCYAMEWWYTYWDLUULTCYWPQLSEOLSVOHTLUYAPVWLYGDALSSVWDPQLNLCKCLRQEASPVILSLEUMQBQVMQCYAHUYKEKTCASLFPYFLMVHQLUPQLHULIVYASHEUEDUEHQBVTTPQLVWFLRYGMYVWMVFLWMLSPVTTBYUNESESADDLSPVYWCYAMEWPUCPYFVIVFLPQLOLSSEDLVWHEUPSKCPQLWAOKLUYGMQEUEMPLUSVWENLCEWFEHHTCGULXALWMCEWETCSVSPYLEMQYGPQLOMEWCYAGVWFEBECPYASLQVDQLUYUFLUGULXALWMCSPEPVSPVMSBVPQPQVSPCHLYGMVHQLUPQLWLRPOEDVMETBYUFBVTTPENLPYPQLWLRPTEKLWZYCKVPTCSTESQPBYMEHVPETCMEHVPETZMEHVPETKTMEHVPETCMEHVPETT";
@@ -34,22 +35,71 @@ export const getAllBigrams = (text: string) => {
     uniqueBigams: new Map(
       Array.from(new Set(res.concat(secondPart))).map((ngram) => [
         ngram,
-        (getNgramCount(text, ngram) * 100) / res.length + secondPart.length,
+        (getNgramCount(text, ngram) * 100) / (res.length + secondPart.length),
       ])
     ),
   };
 };
+export const getAllTrigrams = (text: string) => {
+  const regex = new RegExp(".{3}", "g");
+  const res = text.match(regex);
+  if (!res) {
+    throw new Error("result is null");
+  }
+  const secondPart = text.slice(1).match(regex);
+  if (!secondPart) {
+    throw new Error("second part is null");
+  }
+  const thirdPart = text.slice(2).match(regex);
+  if (!thirdPart) {
+    throw new Error("second part is null");
+  }
+  return {
+    totalNumber: res.length + secondPart.length + thirdPart.length,
+    uniqueTrigams: new Map(
+      Array.from(new Set(res.concat(secondPart).concat(thirdPart))).map(
+        (ngram) => [
+          ngram,
+          (getNgramCount(text, ngram) * 100) /
+            (res.length + secondPart.length + thirdPart.length),
+        ]
+      )
+    ),
+  };
+};
 
+// export const fitness = (child: string[]) => {
+//   const decryptedText = decipher(textToDecipher, child);
+//   const bigramsInfo = getAllBigrams(decryptedText);
+//   let biFitness = 0;
+//   bigramsInfo.uniqueBigams.forEach((bigramValue, bigramKey) => {
+//     biFitness += Math.abs(
+//       bigramValue - bigrams[bigramKey as keyof typeof bigrams]
+//     );
+//   });
+
+//   const trigramsInfo = getAllTrigrams(decryptedText);
+//   let triFitness = 0;
+//   trigramsInfo.uniqueTrigams.forEach((trigramValue, trigramKey) => {
+//     triFitness += Math.abs(
+//       trigrams[trigramKey as keyof typeof trigrams]
+//         ? trigramValue - trigrams[trigramKey as keyof typeof trigrams]
+//         : 0
+//     );
+//   });
+//   return 1.2 * triFitness + biFitness;
+// };
 export const fitness = (child: string[]) => {
   const decryptedText = decipher(textToDecipher, child);
   const bigramsInfo = getAllBigrams(decryptedText);
-  let fitness = 0;
+  let biFitness = 0;
   bigramsInfo.uniqueBigams.forEach((bigramValue, bigramKey) => {
-    fitness += Math.abs(
+    biFitness += Math.abs(
       bigramValue - bigrams[bigramKey as keyof typeof bigrams]
     );
   });
-  return fitness;
+
+  return biFitness;
 };
 
 export const crossover = (child1: string[], child2: string[]) => {
@@ -71,13 +121,42 @@ export const pickoff = (population: string[][]) => {
 };
 
 export const mutagen = (child: string[]) => {
-  const i = getRandomArbitrary(0, child.length - 1);
-  let j = getRandomArbitrary(0, child.length - 1);
+  const i = getRandomArbitrary(0, child.length);
+  let j = getRandomArbitrary(0, child.length);
   while (j == i) {
-    j = getRandomArbitrary(0, child.length - 1);
+    j = getRandomArbitrary(0, child.length);
   }
+
   let res = [...child];
   res[j] = res[i];
   res[i] = child[j];
   return res;
+};
+
+export const progressive_mutagen = (child: string[]) => {
+  let l_fitness = fitness(child);
+  let better_key = true;
+  while (better_key) {
+    better_key = false;
+    for (let i = 0; i < child.length; i++) {
+      for (let j = i; j < child.length; j++) {
+        const ch1 = child[i];
+        const ch2 = child[j];
+        const newKey = [...child];
+        newKey[i] = ch2;
+        newKey[j] = ch1;
+        const fit = fitness(newKey);
+        if (fit < l_fitness) {
+          l_fitness = fit;
+          return newKey;
+        } else {
+          better_key = true;
+        }
+      }
+    }
+    // console.log("i'm still in while", i, j);
+    better_key = false;
+  }
+
+  return mutagen(child);
 };
