@@ -9,4 +9,4 @@ EFFPQLEKVTVPCPYFLMVHQLUEWCNVWFYGHYTCETHQEKLPVMSAKSPVPAPVYWMVHQLUSPQLYWLASLFVWPQL
 
 ## lab 2
 
-So, for this lab, we were finding the "true face" of the lines by XORing the converted to Ascii ciphered lines together to get pseudocode and XORing it with what we thought could be the start of that line in plain text, just as in the example with "salsa20"-ed message, ending with a phone number.
+So, for this lab, we were finding the "true face" of the lines by XORing the converted to Ascii ciphered lines together to get pseudocode and XORing it with what we thought could be the start of that line in plain text (we started with "th" and possible words, starting with it, and some common words like "and", "or", etc.), just as in the example with "salsa20"-ed message, ending with a phone number. The author (as discovered from the lines beginnings, is William Shakespeare).
