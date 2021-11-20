@@ -1,39 +1,28 @@
-import { GeneticAlgorithm } from "./lab1/part4";
-import { generateBasePopulation } from "./utils/generators";
-import {
-  fitness,
-  crossover,
-  pickoff,
-  mutagen,
-  decipher,
-  textToDecipher,
-} from "./utils";
+const m1 =
+  "280dc9e47f3352c307f6d894ee8d534313429a79c1d8a6021f8a8eabca919cfb685a0d468973625e757490daa981ea6b";
+const m2 =
+  "3a0a9cab782b4f8603eac28aadde1151005fd46a859df21d12c38eaa858596bf2548000e883d72117466c5c3a580f66b";
 
-let basePop = generateBasePopulation(5000)
-  .map((child) => {
-    return { child, fit: fitness(child) };
-  })
-  .sort((a, b) => a.fit - b.fit)
-  .slice(0, 5)
-  .map((e) => e.child);
-let iterations = 100;
-console.time("end");
+const m3 =
+  "3a0adee4783a538403b9c29eaac958550242d3778ed9a61918959bf4ca849afa68450f5edc6e311a7f7ed1d7ec";
+// const m1 = "280dc9e4";
+// const m2 = "3a0a9cab";
 
-const algo = new GeneticAlgorithm(
-  basePop,
-  fitness,
-  crossover,
-  pickoff,
-  mutagen,
-  iterations
-);
-const key = algo.runGenerator();
+function xorHexes(a: Buffer, b: Buffer): Buffer {
+  const res: number[] = [];
 
-console.log(key);
-console.log(decipher(textToDecipher, key));
-console.timeEnd("end");
-// console.log(getAllBigrams(textToDecipher));
-// const alphabet = "abcdefghijklmnopqrstuvwxyz".toUpperCase().split("");
-// console.log(fitness(alphabet));
-// console.log(fitness(mutagen(alphabet)));
-// console.log("bcde".match(/.{2}/g));
+  for (const [index, el] of a.entries()) {
+    res.push(el ^ (b[index] ?? 0));
+  }
+  return Buffer.from(res);
+}
+
+const asci1 = Buffer.from(m1, "hex");
+const asci2 = Buffer.from(m2, "hex");
+const asci3 = Buffer.from(m3, "hex");
+// console.log([asci1], "\n", [asci2]);
+
+const pseudoKey = xorHexes(asci1, asci3);
+
+// console.log([pseudoKey]);
+console.log([xorHexes(Buffer.from("The "), pseudoKey).toString()]);
