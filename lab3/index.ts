@@ -1,3 +1,4 @@
+import { timeStamp } from "console";
 import { generateBasePopulation } from "../utils/generators";
 import { modinv, MyLcgGenerator } from "./utils";
 
@@ -23,4 +24,9 @@ console.log(gen.Next());
 // console.log(solver.getAandC());
 // console.log(solver.getNextValue());
 
-// TODO
+// TODO:
+// 1. register user.
+// 2. make 3 calls to backend and save values.
+// 3. load values to LCG solver and calculate a and c.
+// 4. run getting next value and sending a bet for 1000000-1000 times.
+// 5. log last Response.
