@@ -1,32 +1,44 @@
-import { timeStamp } from "console";
-import { generateBasePopulation } from "../utils/generators";
-import { modinv, MyLcgGenerator } from "./utils";
+import { CasinoRoyale } from "./client";
 
-// 1. -1465342059
-// 2. 1565643760
-// 3. 1182291599
-// 4. guess #4 // 922702498
+import { LCGSolver } from "./utils";
 
-// attempt 2
-// 1. -2142924256
-// 4. -1121959031
-const gen = new MyLcgGenerator(6972089, 69069, -4293797003);
-console.log(gen.Next());
-console.log(gen.Next());
-console.log(gen.Next());
-console.log(gen.Next());
-console.log(gen.Next());
+// 1. register user. ✅
+// 2. make 3 calls to backend and save values. ✅
+// 3. load values to LCG solver and calculate a and c. ✅
+// 4. run getting next value and sending a bet for 1000000-1000 times. ✅
+// 5. log last Response. ✅
 
-// const states: [bigint, bigint, bigint] = [977421n, 445704189n, 1377647485n];
-// const states: [bigint, bigint, bigint] = [6972089n, 520048282n, 404463303n];
-// const solver = new LCGSolver(states, BigInt(Math.pow(2, 32)));
-// solver.calcAandC();
-// console.log(solver.getAandC());
-// console.log(solver.getNextValue());
+(async () => {
+  const myCasino = new CasinoRoyale();
+  const reg = await myCasino.registerUser("1234565432");
+  console.log(reg);
+  const first3Results = [
+    await myCasino.makeBet("LCG", 1, 1),
+    await myCasino.makeBet("LCG", 1, 1),
+    await myCasino.makeBet("LCG", 1, 1),
+  ];
+  console.log(first3Results);
+  const state = first3Results.map((res) => {
+    if (res instanceof Error) {
+      throw new Error("Not all first 3 were successful, check code.");
+    } else {
+      return BigInt(res.realNumber);
+    }
+  }) as [bigint, bigint, bigint];
+  console.log(state);
+  const solver = new LCGSolver(state, BigInt(Math.pow(2, 32)));
+  solver.calcAandC();
+  console.log("a, c:", solver.getAandC());
 
-// TODO:
-// 1. register user.
-// 2. make 3 calls to backend and save values.
-// 3. load values to LCG solver and calculate a and c.
-// 4. run getting next value and sending a bet for 1000000-1000 times.
-// 5. log last Response.
+  let myAmount = 0;
+  let lastResponse = first3Results[2];
+  while (myAmount <= 1000000) {
+    const nextVal = solver.getNextValue();
+    lastResponse = await myCasino.makeBet("LCG", 500, Number(nextVal) | 0);
+    if (!(lastResponse instanceof Error)) {
+      myAmount = lastResponse.account.money;
+    }
+  }
+  console.log(myAmount, "!!!!");
+  console.log(JSON.stringify(lastResponse, null, 2));
+})();

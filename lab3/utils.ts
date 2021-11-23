@@ -46,7 +46,10 @@ export class LCGSolver {
   //     multiplier = (states[2] - states[1]) * modinv(states[1] - states[0], modulus) % modulus
   //     return crack_unknown_increment(states, modulus, multiplier)
   private getA() {
-    const tmp = modinv(Number(this.state[1] - this.state[0]), Number(this.m));
+    const tmp = modInverseStackoverflow(
+      Number(this.state[1] - this.state[0]),
+      Number(this.m)
+    );
     const a = ((this.state[2] - this.state[1]) * tmp) % this.m;
     return a;
   }
@@ -86,5 +89,34 @@ export function modinv(a: number, b: number): bigint {
   if (g !== 1) {
     throw new Error("gcd(a, b) != 1");
   }
-  return BigInt(x % b);
+  return BigInt(Math.floor(x % b));
+}
+
+export function modInverseStackoverflow(a: number, m: number): bigint {
+  // validate inputs
+  [a, m] = [Number(a), Number(m)];
+  if (Number.isNaN(a) || Number.isNaN(m)) {
+    throw new Error("Invalid number");
+  }
+  a = ((a % m) + m) % m;
+  if (!a || m < 2) {
+    throw new Error("invalid input");
+  }
+  // find the gcd
+  const s = [];
+  let b = m;
+  while (b) {
+    [a, b] = [b, a % b];
+    s.push({ a, b });
+  }
+  if (a !== 1) {
+    throw new Error(" inverse does not exists");
+  }
+  // find the inverse
+  let x = 1;
+  let y = 0;
+  for (let i = s.length - 2; i >= 0; --i) {
+    [x, y] = [y, x - y * Math.floor(s[i].a / s[i].b)];
+  }
+  return BigInt(((y % m) + m) % m);
 }
