@@ -1,6 +1,7 @@
-import { CasinoRoyale } from "./client";
-
-import { LCGSolver } from "./utils";
+import { MTSolver } from "./solvers/MTSolver";
+import { MTGenerator } from "./generators/MTGenerator";
+import { LCGSolver } from "./solvers/LCGSolver";
+import { crackLcgServer, crackMtServer } from "./solvers/serverCrackers";
 
 // 1. register user. ✅
 // 2. make 3 calls to backend and save values. ✅
@@ -9,36 +10,17 @@ import { LCGSolver } from "./utils";
 // 5. log last Response. ✅
 
 (async () => {
-  const myCasino = new CasinoRoyale();
-  const reg = await myCasino.registerUser("1234565432");
-  console.log(reg);
-  const first3Results = [
-    await myCasino.makeBet("LCG", 1, 1),
-    await myCasino.makeBet("LCG", 1, 1),
-    await myCasino.makeBet("LCG", 1, 1),
-  ];
-  console.log(first3Results);
-  const state = first3Results.map((res) => {
-    if (res instanceof Error) {
-      throw new Error("Not all first 3 were successful, check code.");
-    } else {
-      return BigInt(res.realNumber);
-    }
-  }) as [bigint, bigint, bigint];
-  console.log(state);
-  const solver = new LCGSolver(state, BigInt(Math.pow(2, 32)));
-  solver.calcAandC();
-  console.log("a, c:", solver.getAandC());
-
-  let myAmount = 0;
-  let lastResponse = first3Results[2];
-  while (myAmount <= 1000000) {
-    const nextVal = solver.getNextValue();
-    lastResponse = await myCasino.makeBet("LCG", 500, Number(nextVal) | 0);
-    if (!(lastResponse instanceof Error)) {
-      myAmount = lastResponse.account.money;
-    }
-  }
-  console.log(myAmount, "!!!!");
-  console.log(JSON.stringify(lastResponse, null, 2));
+  const userName = "beeqwraqwesdal";
+  // await crackLcgServer(userName);
+  await crackMtServer(userName, "MT");
+  // await crackMtServer(userName, "BetterMT");
 })();
+
+// let test = -1149514587;
+
+// test = MTSolver.unBitshiftRightXor(test, 18);
+// test = MTSolver.unBitshiftLeftXor(test, 15, 0xefc60000);
+// test = MTSolver.unBitshiftLeftXor(test, 7, 0x9d2c5680);
+// test = MTSolver.unBitshiftRightXor(test, 11);
+
+// console.log(test);

@@ -33,16 +33,22 @@ export class CasinoRoyale {
   ) {
     switch (gameMode) {
       case "LCG":
-        return await this.playLCG(bet, number);
+        return await this.makeRequest<BetResponse>(
+          `${this.host}playLcg?id=${this.id}&bet=${bet}&number=${number}`
+        );
+      case "MT":
+        return await this.makeRequest<BetResponse>(
+          `${this.host}playMt?id=${this.id}&bet=${bet}&number=${number}`
+        );
+      case "BetterMT":
+        return await this.makeRequest<BetResponse>(
+          `${this.host}playBetterMt?id=${this.id}&bet=${bet}&number=${number}`
+        );
       default:
         return new Error("sorry buddy(");
     }
   }
-  private async playLCG(betAmount: number, betNumber: number) {
-    return await this.makeRequest<BetResponse>(
-      `${this.host}playLcg?id=${this.id}&bet=${betAmount}&number=${betNumber}`
-    );
-  }
+
   private async makeRequest<RType>(url: string): Promise<RType | Error> {
     try {
       const res = await fetch(url);
