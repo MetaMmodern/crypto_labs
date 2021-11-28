@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "ts-node index.ts",
+    "build": "echo \"Error: no test specified\" && exit 1",
     "watch": "nodemon index.ts"
   },
   "repository": {
@@ -21,6 +22,7 @@
   "homepage": "https://github.com/MetaMmodern/crypto_labs#readme",
   "dependencies": {
     "asciichart": "^1.5.25",
+    "node-fetch": "^2.6.6",
     "nodemon": "^2.0.14",
     "nodeplotlib": "^0.7.6",
     "ts-node": "^10.4.0",
@@ -28,6 +30,7 @@
     "typescript": "^4.4.4"
   },
   "devDependencies": {
-    "@types/node": "^16.11.6"
+    "@types/node": "^16.11.6",
+    "@types/node-fetch": "^3.0.3"
   }
 }
