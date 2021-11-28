@@ -40,44 +40,41 @@ export async function crackLcgServer(user: string) {
 }
 
 export async function crackMtServer(user: string, mtType: "MT" | "BetterMT") {
-  // const myCasino = new CasinoRoyale();
-  // await myCasino.registerUser(user);
-  // console.debug("registered");
-  // const betResults: Awaited<ReturnType<CasinoRoyale["makeBet"]>>[] = [];
-  // for (let i = 0; i < 624; i++) {
-  //   betResults.push(await myCasino.makeBet(mtType, 1, 5));
-  //   console.debug(i, "reguest");
-  // }
-  // // console.log(betResults);
-  // const betNums: number[] = [];
-  // betResults.forEach((el) => {
-  //   if (!(el instanceof Error)) betNums.push(el.realNumber);
-  // });
-
-  const betNums: number[] = [];
-  const tempGen = new MTGenerator(56478392);
+  const myCasino = new CasinoRoyale();
+  await myCasino.registerUser(user);
+  console.debug("registered");
+  const betResults: Awaited<ReturnType<CasinoRoyale["makeBet"]>>[] = [];
   for (let i = 0; i < 624; i++) {
-    betNums.push(Number(tempGen.Next()));
+    betResults.push(await myCasino.makeBet(mtType, 1, 5));
+    console.debug(i, "reguest");
   }
+  const betNums: number[] = [];
+  let myAmount = 0;
+  betResults.forEach((el) => {
+    if (!(el instanceof Error)) {
+      betNums.push(el.realNumber);
+      myAmount = el.account.money;
+    }
+  });
 
   console.log("numbers got", betNums.length);
   // console.log(betNums);
   const cracker = new MTSolver(betNums);
   console.log("cracker worked");
   console.log([...cracker.state]);
-  const solverMt = new MTGenerator(cracker.state[0]);
-  for (let i = 0; i < 624; i++) {
-    solverMt.Next();
-  }
+  const solverMt = new MTGenerator(0);
+  solverMt.setStateWithIndex(cracker.state, 624);
   console.log("solver worked");
   console.log([...solverMt.state]);
-  // console.log(await myCasino.makeBet(mtType, 1, 5));
-  console.log(tempGen.Next());
-  console.log("myResult:", solverMt.Next());
 
-  // console.log(tempGen.Next());
-  // console.log("myResult:", solverMt.Next());
-
-  // console.log(tempGen.Next());
-  // console.log("myResult:", solverMt.Next());
+  console.log("myResult:");
+  let lastRes;
+  while (myAmount <= 1000000) {
+    lastRes = await myCasino.makeBet(mtType, 300, Number(solverMt.Next()));
+    if (!(lastRes instanceof Error)) {
+      myAmount = lastRes.account.money;
+    }
+    console.log(lastRes);
+  }
+  console.log(lastRes);
 }

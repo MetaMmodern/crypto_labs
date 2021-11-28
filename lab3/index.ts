@@ -10,10 +10,13 @@ import { crackLcgServer, crackMtServer } from "./solvers/serverCrackers";
 // 5. log last Response. ✅
 
 (async () => {
-  const userName = "beeqwraqwesdal";
-  // await crackLcgServer(userName);
+  // change users every time
+  let userName = "beeqwraqwesqwe";
+  await crackLcgServer(userName);
+  userName = "qdyhdscbskcb";
   await crackMtServer(userName, "MT");
-  // await crackMtServer(userName, "BetterMT");
+  userName = "qjqmasmlkdad";
+  await crackMtServer(userName, "BetterMT");
 })();
 
 // let test = -1149514587;

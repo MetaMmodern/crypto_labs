@@ -1,5 +1,23 @@
 // TODO: create constants in file
 export class MTGenerator {
+  private MTVars = {
+    W: BigInt(32),
+    N: BigInt(624),
+    M: BigInt(397),
+    R: BigInt(31),
+    A: BigInt(0x9908b0df),
+    U: BigInt(11),
+    D: BigInt(0xffffffff),
+    S: BigInt(7),
+    B: BigInt(0x9d2c5680),
+    T: BigInt(15),
+    C: BigInt(0xefc60000),
+    L: BigInt(18),
+    F: BigInt(1812433253),
+    ONE: BigInt(1),
+    lMask: (1n << 31n) - 1n,
+    uMask: 1n << 31n,
+  };
   private _state: bigint[];
   private currentIndex = 0n;
   constructor(seed: number) {
@@ -11,49 +29,51 @@ export class MTGenerator {
     return this._state;
   }
   private twist() {
-    for (let i = 0; i < 624; i++) {
-      // y is the first bit of the current number,
-      // and the last 31 bits of the next number
-      const y =
-        (this._state[i] & BigInt(0x80000000)) +
-        (this._state[(i + 1) % 624] & BigInt(0x7fffffff));
-      // first bitshift y by 1 to the right
-      let next = y >> 1n;
-      // xor it with the 397th next number
-      next ^= this._state[(i + 397) % 624];
-      // if y is odd, xor with magic number
-      if (y % 2n) {
-        next ^= BigInt(0x9908b0df);
+    for (let i = 0; i < this.MTVars.N; i++) {
+      let x =
+        (this.state[i] & this.MTVars.uMask) +
+        (this.state[Number(BigInt(i + 1) % this.MTVars.N)] & this.MTVars.lMask);
+      let xA = x >> this.MTVars.ONE;
+      if (x % BigInt(2) !== BigInt(0)) {
+        xA = xA ^ this.MTVars.A;
       }
-      // now we have the result
-      this._state[i] = next;
+      this.state[i] =
+        this.state[Number((BigInt(i) + this.MTVars.M) % this.MTVars.N)] ^ xA;
     }
     this.currentIndex = 0n;
   }
 
   private initSeed(seed: number) {
-    this._state[0] = BigInt(seed);
-    for (let i = 1; i < 624; i++) {
-      const tmp =
-        1812433253n *
-          (this._state[i - 1] ^
-            (BigInt(this._state[i - 1]) >> BigInt(32 - 2))) +
-        BigInt(i);
-      this._state[i] = tmp & BigInt(0xffffffff);
+    this.state[0] = BigInt(seed);
+    for (let i = 1; i < this.MTVars.N; i++) {
+      this.state[i] =
+        (this.MTVars.F *
+          (this.state[i - 1] ^
+            (this.state[i - 1] >> (this.MTVars.W - BigInt(2)))) +
+          BigInt(i)) &
+        ((this.MTVars.ONE << this.MTVars.W) - this.MTVars.ONE);
     }
   }
 
   public Next(): bigint {
-    if (this.currentIndex >= 624) {
+    if (this.currentIndex >= this.MTVars.N) {
+      if (this.currentIndex > this.MTVars.N) {
+        throw new Error("Generator was never seeded");
+      }
       this.twist();
     }
-    let tmp = this.state[Number(this.currentIndex)];
-    tmp ^= BigInt(tmp) >> BigInt(11n);
-    tmp ^= (tmp << 7n) & BigInt(0x9d2c5680);
-    tmp ^= (tmp << 15n) & BigInt(0xefc60000);
-    tmp ^= tmp >> 18n;
+
+    let y = this.state[Number(this.currentIndex)];
+    y = y ^ ((y >> this.MTVars.U) & this.MTVars.D);
+    y = y ^ ((y << this.MTVars.S) & this.MTVars.B);
+    y = y ^ ((y << this.MTVars.T) & this.MTVars.C);
+    y = y ^ (y >> this.MTVars.L);
 
     this.currentIndex++;
-    return tmp;
+    return y & ((this.MTVars.ONE << this.MTVars.W) - this.MTVars.ONE);
+  }
+  public setStateWithIndex(state: number[], i: number) {
+    this._state = [...state].map(BigInt);
+    this.currentIndex = BigInt(i);
   }
 }
