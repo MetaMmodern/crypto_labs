@@ -1,1 +1,1 @@
-import "./lab4/part1/index";
+import "./lab4/part1/";
