@@ -21,10 +21,13 @@
   },
   "homepage": "https://github.com/MetaMmodern/crypto_labs#readme",
   "dependencies": {
+    "@types/bcrypt": "^5.0.0",
     "asciichart": "^1.5.25",
+    "bcrypt": "^5.0.1",
     "node-fetch": "^2.6.6",
     "nodemon": "^2.0.14",
     "nodeplotlib": "^0.7.6",
+    "password-generator": "^2.3.2",
     "ts-node": "^10.4.0",
     "ts-watch": "^1.0.8",
     "typescript": "^4.4.4"
