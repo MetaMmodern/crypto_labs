@@ -48,4 +48,4 @@ As you can see we used same word list. The trouble with argon is that it can't b
 
 ![Screenshot of JtR processed passwords](./screen_jtr.png)
 
-In cocnlusion we can say that argon2 today is a good way to hash something and to protect hashes from being "unhashed". No comments for md5😊.
+In conclusion we can say that argon2 today is a good way to hash something and to protect hashes from being "unhashed". No comments for md5😊.
