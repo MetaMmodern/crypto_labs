@@ -93,7 +93,7 @@ export function generateNPasswords(n: number): string[] {
   const getAlgoIndex = algorithmSelector();
   for (let i = 0; i < n; i++) {
     const index = getAlgoIndex.next().value;
-    result.push(allAlgos[0]());
+    result.push(allAlgos[index]());
   }
   return result;
 }
