@@ -36,7 +36,7 @@ In conclusion, we managed to crack 50k passwords. For the rest other techniquies
 
 P.S. rockyou file was grabbed from [here](https://github.com/praetorian-inc/Hob0Rules/blob/master/wordlists/rockyou.txt.gz).
 
-[Screenshot of hashcat processed passwords](./screen_hashcat.png)
+![Screenshot of hashcat processed passwords](./screen_hashcat.png)
 
 ### Cracking argon2i
 
@@ -46,6 +46,6 @@ Here we can't use hashcat, because cracking argon is not in scope of that tool. 
 
 As you can see we used same word list. The trouble with argon is that it can't be cracked using GPU, so cracking here was much much slower and was interrupted in about 5 minutes. The details can be found in [this stackExchange answer](https://crypto.stackexchange.com/a/63050).
 
-[Screenshot of JtR processed passwords](./screen_jtr.png)
+![Screenshot of JtR processed passwords](./screen_jtr.png)
 
 In cocnlusion we can say that argon2 today is a good way to hash something and to protect hashes from being "unhashed". No comments for md5😊.
